@@ -112,7 +112,9 @@ def main(
             sys.path.append(str(solutions_path))
 
             # find folders or .py files
-            all_solutions = [p for p in solutions_path.iterdir() if p.is_dir() or p.suffix == ".py"][:subset]
+            all_solutions = [
+                p for p in solutions_path.iterdir() if (p.is_dir() and p.name != "__pycache__") or p.suffix == ".py"
+            ][:subset]
             logger.info(f"Found {len(all_solutions)} solutions.")
             valid_solutions = all_solutions
 
