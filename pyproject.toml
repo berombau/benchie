@@ -17,6 +17,12 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "click>=8.1.8",
+    "loguru>=0.7.3",
+    "memray>=1.15.0",
+    "requests>=2.32.3",
+]
 
 [project.urls]
 Homepage = "https://berombau.github.io/benchie/"
