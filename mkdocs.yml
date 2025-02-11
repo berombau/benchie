@@ -16,6 +16,8 @@ plugins:
       handlers:
         python:
           paths: ["src/benchie"]
+          options:
+            show_submodules: true
 theme:
   name: material
   feature:

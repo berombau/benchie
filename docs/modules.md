@@ -1,1 +1,1 @@
-::: benchie.foo
+::: benchie
