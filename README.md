@@ -11,63 +11,65 @@ A tool for automating benchmarks of programming assignments.
 - **Github repository**: <https://github.com/berombau/benchie/>
 - **Documentation** <https://berombau.github.io/benchie/>
 
-## Getting started with your project
+## Installation
 
-### 1. Create a New Repository
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+You can run the tool without installation using the following command:
 
-```bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:berombau/benchie.git
-git push -u origin main
+```
+uvx benchie --help
 ```
 
-### 2. Set Up Your Development Environment
-
-Then, install the environment and the pre-commit hooks with
+To install the tool in an environment, you can run:
 
 ```bash
-make install
+uv venv
+uv pip install benchie
 ```
 
-This will also generate your `uv.lock` file
+## Run as a student
 
-### 3. Run the pre-commit hooks
+### Example data
 
-Initially, the CI/CD pipeline might be failing due to formatting issues. To resolve those run:
+With the example data in this repository at `solutions/` and `data/` you can run the following command:
 
 ```bash
-uv run pre-commit run -a
+benchie run -S -e "example_sleep" --disable_pretest -b hyperfine -b memray_tracker
 ```
 
-### 4. Commit the changes
+The output will be stored in `output/example_sleep/`.
 
-Lastly, commit the changes made by the two steps above to your repository.
+### Custom data
 
-```bash
-git add .
-git commit -m 'Fix formatting issues'
-git push origin main
+Put different implementations at `solutions/{exercise_1}/{implementation_1}.py`.
+
+Run the benchmark with disabled fetching of Dodona submissions and only the first 3 datasets:
+
+```
+benchie run -S -e "{exercise_1}" --subset_data 3
 ```
 
-You are now ready to start development on your project!
-The CI/CD pipeline will be triggered when you open a pull request, merge to main, or when you create a new release.
+Output will be stored in `output/{exercise_1}`.
 
-To finalize the set-up for publishing to PyPI, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/codecov/).
+## Run as a teacher
 
-## Releasing a new version
+Fetch token from Dodona user profile and store as `token` file.
 
-- Create an API Token on [PyPI](https://pypi.org/).
-- Add the API Token to your projects secrets with the name `PYPI_TOKEN` by visiting [this page](https://github.com/berombau/benchie/settings/secrets/actions/new).
-- Create a [new release](https://github.com/berombau/benchie/releases/new) on Github.
-- Create a new tag in the form `*.*.*`.
+### Setup recurrent job
 
-For more details, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/cicd/#how-to-trigger-a-release).
+- Use [deploy keys](https://docs.github.com/en/developers/overview/managing-deploy-keys)
+- Use git instead of https as git origin remote URL
+- setup cron job
+- copy conda init lines from ~/.bashrc to ~/.bashrc_conda
+
+Use `crontab -e` to add a cron job (edit the repo path):
+
+```
+SHELL=/bin/bash
+BASH_ENV=~/.bashrc_conda
+0 * * * * conda activate combio_benchmark_2024; timeout --signal=KILL 1h benchie run -e "global_alignment" -fC >> ~/combio_benchmark_job.log 2>&1
+```
 
 ---
 
