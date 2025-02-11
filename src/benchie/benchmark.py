@@ -11,7 +11,6 @@ from loguru import logger
 from benchie.memray import run_memray
 from benchie.reporting import key_by_memory
 from benchie.runtime import run_hyperfine_all
-from benchie.scalene import run_scalene
 
 
 class BenchmarkOption(Enum):
@@ -163,6 +162,8 @@ def benchmark(
             output_peak = output / f"{path.stem}_memray_imports.txt"
             output_peak.write_text(str(memray_peak))
         if BenchmarkOption.SCALENE.value in benchmark_options:
+            from benchie.scalene import run_scalene
+
             peaks = []
             for i in range(n_memory_profiles):
                 i_output = output / f"memory_{i}"
