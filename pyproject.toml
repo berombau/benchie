@@ -1,6 +1,6 @@
 [project]
 name = "benchie"
-version = "0.0.1"
+version = "0.0.3"
 description = "A tool for automating benchmarks of programming assignments."
 authors = [{ name = "Benjamin Rombaut", email = "benjamin.rombaut@ugent.be" }]
 readme = "README.md"
