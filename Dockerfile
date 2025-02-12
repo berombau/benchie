@@ -18,4 +18,4 @@ ADD . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "python", "benchie/foo.py"]
+ENTRYPOINT ["python", "--version"]
