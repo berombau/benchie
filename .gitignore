@@ -1,5 +1,10 @@
 docs/source
 output/
+token
+data/
+!data/example_*
+solutions/
+!solutions/example_*
 
 
 # From https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
