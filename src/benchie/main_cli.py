@@ -76,6 +76,12 @@ def main_cli():
     type=click.Choice([option.value for option in BenchmarkOption]),
     help="Benchmarking options.",
 )
+@click.option(
+    "--docker_image",
+    default=None,
+    type=str,
+    help="Docker image to use for benchmarking.",
+)
 def run(
     output,
     data,
@@ -95,6 +101,7 @@ def run(
     loop_timeout,
     timeout,
     benchmark_options,
+    docker_image,
 ):
     args = {
         "output": output,
@@ -115,6 +122,7 @@ def run(
         "loop": loop,
         "loop_timeout": loop_timeout,
         "benchmark_options": benchmark_options,
+        "docker_image": docker_image,
     }
     logger.info(args)
     run_main(**args)

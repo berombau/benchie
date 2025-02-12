@@ -5,46 +5,29 @@ from pathlib import Path
 from loguru import logger
 
 
-def run_once_docker(solution, testfile, timeout) -> None:
-    src = "/submission/" + solution.name + "/src" if solution.is_dir() else "/submission"
-    command = create_command(solution, testfile)
-    logger.info(f"Command: {command}")
-    cmds = f"docker run -t --rm --mount type=bind,source={solution!s},destination=/submission/{solution.name!s},readonly --entrypoint '/bin/bash' local_combio_project -c 'PYTHONPATH={src} python -c \"{command}\"'"
-    logger.debug(f"Running command: {cmds}")
-    subprocess.run(
-        # [executable, "-c", command],
-        cmds,
-        check=True,
-        timeout=timeout,
-        # env=env,
-        shell=True,
-    )
-
-
-def run_hyperfine_process_docker(testfile, module_path, json_path, md_path, warmup, min_runs, names):
-    subcommand = "import {module}; {module}." + testfile.read_text()
+def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path, md_path, warmup, min_runs, names):
     output = json_path.parent.resolve()
-    # subcommand = f"docker run -t --rm --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/solutions/project/{{module}},destination=/submission,readonly --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/data/project/{testfile.read_text().strip()},destination=/home/runner/data/Levine_13dim.fcs,readonly local_combio_project"
-    # executable = "docker"
     destination_root = "/submission"
     destination_output = f"{destination_root}/{output.name}"
-    mount_output = f"--mount type=bind,source={output!s},destination={destination_output!s},readonly"
+    mount_output = f"--mount type=bind,source={output!s},destination={destination_output!s}"
     destination_module = f"{destination_root}/{module_path.name}"
     mount_module = f"--mount type=bind,source={module_path!s},destination={destination_module!s},readonly"
     src = "/submission/" + module_path.name
     json_path = destination_output + "/" + json_path.name
     md_path = destination_output + "/" + md_path.name
     executable = "python"
+    subcommand = "import {module}; {module}." + testfile.read_text()
     logger.debug(f"Executable: {executable}")
     logger.debug(f"Subcommand: {subcommand}")
     command = f"""
         hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
             -w {warmup} -m {min_runs} --shell {executable} --show-output \
             {" ".join(["-n " + x for x in names])} \
-            -L module {",".join(names)} '{subcommand}'"""
+            -L module {",".join(names)} \'{subcommand}\'
+    """.strip()
     logger.info(f"Command: {command}")
-    cmds = f"docker run -t --rm {mount_output} {mount_module} --entrypoint '/bin/bash' local_combio_project -c 'PYTHONPATH={src} \"{command}\"'"
-    return subprocess.run(cmds, shell=True, check=True)
+    cmds = f"docker run -t --rm {mount_output} {mount_module} -e PYTHONPATH=$PYTHONPATH --entrypoint '/bin/bash' {docker_image} -c \"{command}\""
+    return subprocess.run(cmds, shell=True, check=True, env={"PYTHONPATH": src})
 
 
 def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min_runs, names):
@@ -73,6 +56,7 @@ def run_hyperfine_all(
     warmup=1,
     min_runs=3,
     subset=None,
+    docker_image=None,
 ):
     name = testfile.stem
     json_path = Path(json_path or output / f"{name}_benchmark.json")
@@ -86,7 +70,12 @@ def run_hyperfine_all(
 
     # DANGER: arbitrary code run, only run on valid Dodona code!
     try:
-        results = run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min_runs, names)
+        if docker_image:
+            results = run_hyperfine_process_docker(
+                docker_image, testfile, module_path, json_path, md_path, warmup, min_runs, names
+            )
+        else:
+            results = run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min_runs, names)
     except subprocess.CalledProcessError as e:
         logger.error(f"Error while benchmarking: {e}")
         return

@@ -70,11 +70,11 @@ def run_once(solution, testfile, timeout) -> None:
     )
 
 
-def run_once_docker(solution, testfile, timeout) -> None:
+def run_once_docker(docker_image, solution, testfile, timeout) -> None:
     src = "/submission/" + solution.name + "/src" if solution.is_dir() else "/submission"
     command = create_command(solution, testfile)
     logger.info(f"Command: {command}")
-    cmds = f"docker run -t --rm --mount type=bind,source={solution!s},destination=/submission/{solution.name!s},readonly --entrypoint '/bin/bash' local_combio_project -c 'PYTHONPATH={src} python -c \"{command}\"'"
+    cmds = f"docker run -t --rm --mount type=bind,source={solution!s},destination=/submission/{solution.name!s},readonly --entrypoint '/bin/bash' {docker_image} -c 'PYTHONPATH={src} python -c \"{command}\"'"
     logger.debug(f"Running command: {cmds}")
     subprocess.run(
         # [executable, "-c", command],
@@ -94,6 +94,7 @@ def benchmark(
     disable_pretest,
     benchmark_options: list[BenchmarkOption],
     subset=None,
+    docker_image=None,
 ):
     """
     Perform benchmarking on submissions.
@@ -130,7 +131,10 @@ def benchmark(
         all_correct_solutions = []
         for solution in solutions:
             try:
-                run_once(solution, testfile, timeout)
+                if docker_image:
+                    run_once_docker(docker_image, solution, testfile, timeout)
+                else:
+                    run_once(solution, testfile, timeout)
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
                 #     logger.error(f"Timeout while testing '{solution.stem}'")

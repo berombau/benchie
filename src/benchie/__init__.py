@@ -50,6 +50,7 @@ def main(
     loop,
     loop_timeout,
     benchmark_options,
+    docker_image,
     *args,
     **kwargs,
 ):
@@ -75,6 +76,7 @@ def main(
         loop (bool): Flag indicating whether to run the benchmark in an infinite loop.
         loop_timeout (float): Timeout value for the loop.
         benchmark_options (list[BenchmarkOption]): List of benchmarking options.
+        docker_image (str): Docker image to use for benchmarking.
 
     Returns
     -------
