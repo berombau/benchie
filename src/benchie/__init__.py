@@ -23,6 +23,7 @@ def do_commit(cwd):
 
     """
     logger.info("Committing results")
+    subprocess.run(["git", "add", "**/*benchmark.md"], check=True, cwd=cwd)
     subprocess.run(["pre-commit", "run", "--all-files"], check=False, cwd=cwd)
     subprocess.run(["git", "add", "**/*benchmark.md"], check=True, cwd=cwd)
     subprocess.run(["git", "commit", "-am", "benchmark solutions"], check=True, cwd=cwd)
