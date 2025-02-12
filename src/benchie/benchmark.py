@@ -46,14 +46,54 @@ def prep_workdir(data_folder, chdir=True):
     return tmp
 
 
+def run_once(solution, testfile, timeout) -> None:
+    executable = sys.executable
+    if solution.is_dir():
+        src = solution / "src"
+        if not src.exists():
+            logger.error(f"Source folder {src} does not exist")
+            raise FileNotFoundError(f"Source folder {src} does not exist")
+        env = {"PYTHONPATH": str(src)}
+    else:
+        env = {"PYTHONPATH": str(solution.parent)}
+    command = create_command(solution, testfile)
+    logger.info(f"Command: {command}")
+    # cmds = f"docker run -it --rm --mount type=bind,source={solution!s},destination=/submission,readonly local_combio_project"
+    # logger.debug(f"Running command: {cmds}")
+    subprocess.run(
+        [executable, "-c", command],
+        # cmds,
+        check=True,
+        timeout=timeout,
+        env=env,
+        # shell=True,
+    )
+
+
+def run_once_docker(solution, testfile, timeout) -> None:
+    src = "/submission/" + solution.name + "/src" if solution.is_dir() else "/submission"
+    command = create_command(solution, testfile)
+    logger.info(f"Command: {command}")
+    cmds = f"docker run -t --rm --mount type=bind,source={solution!s},destination=/submission/{solution.name!s},readonly --entrypoint '/bin/bash' local_combio_project -c 'PYTHONPATH={src} python -c \"{command}\"'"
+    logger.debug(f"Running command: {cmds}")
+    subprocess.run(
+        # [executable, "-c", command],
+        cmds,
+        check=True,
+        timeout=timeout,
+        # env=env,
+        shell=True,
+    )
+
+
 def benchmark(
     testfile,
-    subset,
     output,
     solutions,
     timeout,
     disable_pretest,
     benchmark_options: list[BenchmarkOption],
+    subset=None,
 ):
     """
     Perform benchmarking on submissions.
@@ -88,34 +128,17 @@ def benchmark(
         # test solution correctness and report errors
         logger.info("Testing correctness.")
         all_correct_solutions = []
-        executable = sys.executable
-        logger.debug(f"Executable: {executable}")
         for solution in solutions:
-            if solution.is_dir():
-                src = solution / "src"
-                if not src.exists():
-                    logger.error(f"Source folder {src} does not exist")
-                    continue
-                env = {"PYTHONPATH": str(src)}
-            else:
-                env = {"PYTHONPATH": str(solution.parent)}
-            command = create_command(solution, testfile)
             try:
-                cmds = f"docker run -it --rm --mount type=bind,source={solution!s},destination=/submission,readonly local_combio_project"
-                logger.debug(f"Running command: {cmds}")
-                subprocess.run(
-                    # [executable, "-c", command],
-                    cmds,
-                    check=True,
-                    timeout=timeout,
-                    # env=env,
-                    shell=True,
-                )
+                run_once(solution, testfile, timeout)
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
                 #     logger.error(f"Timeout while testing '{solution.stem}'")
                 #     continue
                 # exec(command)
+            except FileNotFoundError:
+                logger.error(f"File not found while testing '{solution.stem}'")
+                continue
             except subprocess.TimeoutExpired:
                 logger.error(f"Timeout while testing '{solution.stem}'")
                 continue
