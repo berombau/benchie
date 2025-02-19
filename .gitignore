@@ -1,9 +1,9 @@
 docs/source
 output/
 token
-data/
+data/*
 !data/example_*
-solutions/
+solutions/*
 !solutions/example_*
 
 
