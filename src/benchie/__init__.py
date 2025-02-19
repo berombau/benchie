@@ -141,6 +141,7 @@ def main(
                         timeout=timeout,
                         disable_pretest=disable_pretest,
                         benchmark_options=benchmark_options,
+                        docker_image=docker_image,
                     )
                 logger.info("Postprocess")
                 postprocess_output(path, output_folder_data)

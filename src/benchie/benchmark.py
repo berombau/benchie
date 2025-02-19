@@ -155,7 +155,7 @@ def benchmark(
         all_correct_solutions = solutions
 
     if BenchmarkOption.HYPERFINE.value in benchmark_options:
-        run_hyperfine_all(output, all_correct_solutions, testfile, subset=subset)
+        run_hyperfine_all(output, all_correct_solutions, testfile, subset=subset, docker_image=docker_image)
 
     # prepare for memory profiling
     n_memory_profiles = 3
