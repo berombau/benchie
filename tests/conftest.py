@@ -4,6 +4,11 @@ import pytest
 
 
 @pytest.fixture
+def docker_image():
+    return "local_combio_project"
+
+
+@pytest.fixture
 def project_root():
     p = Path(__file__).parent.parent.resolve()
     assert p.exists()
