@@ -23,4 +23,4 @@ ADD . /app
 # Sync the project
 RUN uv sync --frozen
 
-ENTRYPOINT ["python", "--version"]
+ENTRYPOINT ["uv", "run", "--frozen", "--no-sync", "python", "--version"]

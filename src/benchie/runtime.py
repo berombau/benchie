@@ -15,7 +15,7 @@ def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path,
     src = "/submission/" + module_path.name
     json_path = destination_output + "/" + json_path.name
     md_path = destination_output + "/" + md_path.name
-    executable = "python"
+    executable = "'uv run --frozen --no-sync python'"
     subcommand = "import {module}; {module}." + testfile.read_text()
     logger.debug(f"Executable: {executable}")
     logger.debug(f"Subcommand: {subcommand}")

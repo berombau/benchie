@@ -74,7 +74,7 @@ def run_once_docker(docker_image, solution, testfile, timeout) -> None:
     src = "/submission/" + solution.name + "/src" if solution.is_dir() else "/submission"
     command = create_command(solution, testfile)
     logger.info(f"Command: {command}")
-    cmds = f"docker run -t --rm --mount type=bind,source={solution!s},destination=/submission/{solution.name!s},readonly --entrypoint '/bin/bash' {docker_image} -c 'PYTHONPATH={src} python -c \"{command}\"'"
+    cmds = f"docker run -t --rm --mount type=bind,source={solution!s},destination=/submission/{solution.name!s},readonly --entrypoint '/bin/bash' {docker_image} -c 'PYTHONPATH={src} uv run --frozen --no-sync python -c \"{command}\"'"
     logger.debug(f"Running command: {cmds}")
     subprocess.run(
         # [executable, "-c", command],
