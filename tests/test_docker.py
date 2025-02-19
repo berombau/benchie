@@ -14,3 +14,17 @@ def test_run_hyperfine_process_docker(docker_image, sleep_solution, sleep_data, 
     run_hyperfine_process_docker(
         docker_image, testfile, solution.parent, tmp_path / "test.json", tmp_path / "test.md", 1, 3, names=["solution"]
     )
+
+
+def test_bio_run_once_docker(docker_image, bio_solution, bio_data):
+    testfile = bio_data / "data_01.py"
+    solution = next(iter(bio_solution.glob("*.py")))
+    run_once_docker(docker_image, solution, testfile, 10)
+
+
+def test_bio_run_hyperfine_process_docker(docker_image, bio_solution, bio_data, tmp_path):
+    testfile = bio_data / "data_01.py"
+    solution = next(iter(bio_solution.glob("*.py")))
+    run_hyperfine_process_docker(
+        docker_image, testfile, solution.parent, tmp_path / "test.json", tmp_path / "test.md", 1, 3, names=["solution"]
+    )

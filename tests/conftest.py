@@ -55,3 +55,17 @@ def sleep_data(data):
     p = data / "example_sleep"
     assert p.exists()
     return p
+
+
+@pytest.fixture
+def bio_solution(solutions):
+    p = solutions / "example_bio"
+    assert p.exists()
+    return p
+
+
+@pytest.fixture
+def bio_data(data):
+    p = data / "example_bio"
+    assert p.exists()
+    return p
