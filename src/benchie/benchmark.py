@@ -140,24 +140,22 @@ def benchmark(
     if not disable_pretest:
         # test solution correctness and report errors
         logger.info("Testing correctness.")
+        import time
         all_correct_solutions = []
-        memory_interval_ms = None
         for solution in solutions:
             try:
-                if not memory_interval_ms:
-                    import time
-
-                    # start time clock, set memory_interval_ms to 0.001 of runtime
-                    start = time.time_ns()
+                # start time clock, set memory_interval_ms to 0.001 of runtime for each solution
+                start = time.time_ns()
                 if docker_image:
                     run_once_docker(docker_image, solution, testfile, timeout)
                 else:
                     run_once(solution, testfile, timeout)
-                if not memory_interval_ms:
-                    end = time.time_ns()
-                    # time is in ns, convert to ms
-                    # round to 10 ms, take .1% of runtime
-                    memory_interval_ms = _parse_dynamic_sampling_timer((end - start) / 1_000_000)
+
+                end = time.time_ns()
+                # time is in ns, convert to ms
+                # round to 10 ms, take .1% of runtime
+                memory_interval_ms = _parse_dynamic_sampling_timer(int((end - start) / 1_000_000))
+
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
                 #     logger.error(f"Timeout while testing '{solution.stem}'")
@@ -172,21 +170,24 @@ def benchmark(
             except subprocess.CalledProcessError as e:
                 logger.error(f"Error while testing '{solution.stem}'; {e}")
                 continue
-            all_correct_solutions.append(solution)
+            all_correct_solutions.append({"path": solution, "memory_interval_ms": memory_interval_ms})
         logger.info(f"Correct solutions: {len(all_correct_solutions)}")
     else:
-        all_correct_solutions = solutions
-        memory_interval_ms = 10
+        all_correct_solutions = [{"path": solution, "memory_interval_ms": 10} for solution in solutions]
 
-    logger.debug(f"Memory interval: {memory_interval_ms}")
+    logger.debug(f"Correct solutions: {all_correct_solutions}")
 
     if BenchmarkOption.HYPERFINE.value in benchmark_options:
-        run_hyperfine_all(output, all_correct_solutions, testfile, subset=subset, docker_image=docker_image)
+        solution_paths = [solution["path"] for solution in all_correct_solutions]
+        run_hyperfine_all(output, solution_paths, testfile, subset=subset, docker_image=docker_image)
 
     # prepare for memory profiling
     n_memory_profiles = 3
 
-    for path in all_correct_solutions:
+    for solution in all_correct_solutions:
+        path = solution["path"]
+        memory_interval_ms = solution["memory_interval_ms"]
+
         # change work dir to the solutions path
         if BenchmarkOption.MEMRAY_TRACKER.value in benchmark_options:
             peaks = []
