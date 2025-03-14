@@ -20,7 +20,9 @@ def create_memray_command(path, testfile, interpreter="python"):
     return command
 
 
-def run_memray(output, solution, testfile, workdir, memray_executable=None, use_tracker=False, timeout=None):
+def run_memray(
+    output, solution, testfile, workdir, memray_executable=None, use_tracker=False, timeout=None, memory_interval_ms=10
+):
     if memray_executable is None:
         memray_executable = (sys.executable + " -m memray").split()
     memray_bin = output / (solution.stem + "_memray.bin")
@@ -36,7 +38,7 @@ def run_memray(output, solution, testfile, workdir, memray_executable=None, use_
             file_name=memray_bin,
             native_traces=False,
             follow_fork=True,
-            memory_interval_ms=10,
+            memory_interval_ms=memory_interval_ms,
         ):
             try:
                 exec(memray_cmd)

@@ -86,6 +86,18 @@ def run_once_docker(docker_image, solution, testfile, timeout) -> None:
     )
 
 
+def _parse_dynamic_sampling_timer(timer: int, base_limit: int = 1, runtime_percentage=0.001) -> int:
+    """
+    Timer is in milliseconds, round, take runtime_percentage and lower bound to base_limit.
+
+    >>> _parse_dynamic_sampling_timer(1_000)
+    1
+    >>> _parse_dynamic_sampling_timer(1_000_000)
+    1000
+    """
+    return max(round(timer * runtime_percentage), base_limit)
+
+
 def benchmark(
     testfile,
     output,
@@ -129,12 +141,23 @@ def benchmark(
         # test solution correctness and report errors
         logger.info("Testing correctness.")
         all_correct_solutions = []
+        memory_interval_ms = None
         for solution in solutions:
             try:
+                if not memory_interval_ms:
+                    import time
+
+                    # start time clock, set memory_interval_ms to 0.001 of runtime
+                    start = time.time_ns()
                 if docker_image:
                     run_once_docker(docker_image, solution, testfile, timeout)
                 else:
                     run_once(solution, testfile, timeout)
+                if not memory_interval_ms:
+                    end = time.time_ns()
+                    # time is in ns, convert to ms
+                    # round to 10 ms, take .1% of runtime
+                    memory_interval_ms = _parse_dynamic_sampling_timer((end - start) / 1_000_000)
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
                 #     logger.error(f"Timeout while testing '{solution.stem}'")
@@ -153,6 +176,9 @@ def benchmark(
         logger.info(f"Correct solutions: {len(all_correct_solutions)}")
     else:
         all_correct_solutions = solutions
+        memory_interval_ms = 10
+
+    logger.debug(f"Memory interval: {memory_interval_ms}")
 
     if BenchmarkOption.HYPERFINE.value in benchmark_options:
         run_hyperfine_all(output, all_correct_solutions, testfile, subset=subset, docker_image=docker_image)
@@ -169,7 +195,15 @@ def benchmark(
                 workdir = prep_workdir(testfile.parent)
                 i_output = output / f"memray_{i}"
                 i_output.mkdir(exist_ok=True)
-                memray_peak = run_memray(i_output, path, testfile, workdir, use_tracker=True, timeout=timeout)
+                memray_peak = run_memray(
+                    i_output,
+                    path,
+                    testfile,
+                    workdir,
+                    use_tracker=True,
+                    timeout=timeout,
+                    memory_interval_ms=memory_interval_ms,
+                )
                 logger.debug(f"Peak memory usage: {memray_peak}")
                 peaks.append(memray_peak)
             # get median peak memory usage, with support for KiB and MiB
@@ -183,7 +217,15 @@ def benchmark(
             workdir = prep_workdir(testfile.parent)
             i_output = output / "memray_imports"
             i_output.mkdir(exist_ok=True)
-            memray_peak = run_memray(i_output, path, testfile, workdir, use_tracker=False, timeout=timeout)
+            memray_peak = run_memray(
+                i_output,
+                path,
+                testfile,
+                workdir,
+                use_tracker=False,
+                timeout=timeout,
+                memory_interval_ms=memory_interval_ms,
+            )
             logger.debug(f"Peak memory usage: {memray_peak}")
             # write median peak memory usage to file
             output_peak = output / f"{path.stem}_memray_imports.txt"
@@ -197,3 +239,9 @@ def benchmark(
                 i_output.mkdir(exist_ok=True)
                 run_scalene(i_output, path, testfile)
     return all_correct_solutions
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
