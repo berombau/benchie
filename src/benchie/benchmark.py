@@ -141,6 +141,7 @@ def benchmark(
         # test solution correctness and report errors
         logger.info("Testing correctness.")
         import time
+
         all_correct_solutions = []
         for solution in solutions:
             try:
@@ -239,7 +240,7 @@ def benchmark(
                 i_output = output / f"memory_{i}"
                 i_output.mkdir(exist_ok=True)
                 run_scalene(i_output, path, testfile)
-    return all_correct_solutions
+    return [solution["path"] for solution in all_correct_solutions]
 
 
 if __name__ == "__main__":
