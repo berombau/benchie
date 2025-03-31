@@ -12,6 +12,7 @@ def _conclude_cmd(module_path):
     """
     return f'import pathlib; import shutil; [shutil.rmtree(p) for p in pathlib.Path("{module_path!s}").rglob("__pycache__")]'
 
+
 def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path, md_path, warmup, min_runs, names):
     output = json_path.parent.resolve()
     destination_root = "/submission"

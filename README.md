@@ -88,6 +88,13 @@ Output will be stored in `output/{exercise_1}`.
 
 Fetch token from Dodona user profile and store as `token` file.
 
+### GitHub Classroom
+
+- install gh and classroom extension
+- create a classroom
+- create an assignment
+- use `benchie fetch-classroom` to fetch the assignment
+
 ### Setup recurrent job
 
 - Use [deploy keys](https://docs.github.com/en/developers/overview/managing-deploy-keys)

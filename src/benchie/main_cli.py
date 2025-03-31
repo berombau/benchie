@@ -3,6 +3,7 @@ from loguru import logger
 
 from benchie import main as run_main
 from benchie.benchmark import BenchmarkOption
+from benchie.fetch_classroom import main as fetch_classroom_main
 from benchie.fetch_subgit import main as fetch_subgit_main
 from benchie.fetch_submissions import main as fetch_main
 
@@ -162,9 +163,26 @@ def fetch_subgit(solutions, task_id, force, subset):
     fetch_subgit_main(**args)
 
 
+@click.command()
+@click.option(
+    "-s",
+    "--solutions",
+    type=click.Path(),
+    help="Folder to fetch and read submissions.",
+)
+@click.option("-i", "--task_id", type=str, help="Classroom assignment id.")
+@click.option("-f", "--force", is_flag=True, help="Force write all submissions.")
+@click.option("-N", "--subset", default=None, type=int, help="Number of submissions to subset.")
+def fetch_classroom(solutions, task_id, force, subset):
+    args = {"solutions": solutions, "task_id": task_id, "force": force, "subset": subset}
+    logger.info(args)
+    fetch_classroom_main(**args)
+
+
 main_cli.add_command(run)
 main_cli.add_command(fetch)
 main_cli.add_command(fetch_subgit)
+main_cli.add_command(fetch_classroom)
 
 if __name__ == "__main__":
     main_cli()
