@@ -5,6 +5,13 @@ from pathlib import Path
 from loguru import logger
 
 
+def _conclude_cmd(module_path):
+    """
+    Str of one-liner python code that remove the __pycache__ directories in the local path and PYTHONPATH.
+
+    """
+    return f'import pathlib; import shutil; [shutil.rmtree(p) for p in pathlib.Path("{module_path!s}").rglob("__pycache__")]'
+
 def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path, md_path, warmup, min_runs, names):
     output = json_path.parent.resolve()
     destination_root = "/submission"
@@ -17,11 +24,13 @@ def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path,
     md_path = destination_output + "/" + md_path.name
     executable = "'uv run --frozen --no-sync python'"
     subcommand = "import {module}; {module}." + testfile.read_text()
+    cmd_conclude = _conclude_cmd(src)
     logger.debug(f"Executable: {executable}")
     logger.debug(f"Subcommand: {subcommand}")
+    logger.debug(f"Conclude command: {cmd_conclude}")
     command = f"""
         hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
-            -w {warmup} -m {min_runs} --shell {executable} --show-output \
+            -w {warmup} -m {min_runs} --shell {executable} --show-output --conclude \'{cmd_conclude}\' \
             {" ".join(["-n " + x for x in names])} \
             -L module {",".join(names)} \'{subcommand}\'
     """.strip()
@@ -35,13 +44,15 @@ def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min
     # subcommand = f"docker run -t --rm --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/solutions/project/{{module}},destination=/submission,readonly --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/data/project/{testfile.read_text().strip()},destination=/home/runner/data/Levine_13dim.fcs,readonly local_combio_project"
     executable = sys.executable
     # executable = "docker"
+    cmd_conclude = _conclude_cmd(module_path)
     logger.debug(f"Executable: {executable}")
     logger.debug(f"Command: {subcommand}")
+    logger.debug(f"Conclude command: {cmd_conclude}")
     command = f"""
         PYTHONPATH={module_path!s} hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
-            -w {warmup} -m {min_runs} --shell {executable} --show-output \
+            -w {warmup} -m {min_runs} --shell {executable} --show-output --conclude \'{cmd_conclude}\' \
             {" ".join(["-n " + x for x in names])} \
-            -L module {",".join(names)} '{subcommand}'
+            -L module {",".join(names)} \'{subcommand}\'
     """
     logger.info(f"Command {command}")
     return subprocess.run(command, shell=True, check=True)
