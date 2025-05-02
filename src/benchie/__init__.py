@@ -122,7 +122,7 @@ def main(
             valid_solutions = all_solutions
 
             data_paths: list[Path] = sorted(data.resolve().glob("data_*.py"))[:subset_data]
-            shell_paths: list[Path] = sorted(data.resolve().glob("*.sh"))[:subset_data - len(data_paths)]
+            shell_paths: list[Path] = sorted(data.resolve().glob("*.sh"))
             if not data_paths and not shell_paths:
                 logger.info("No data to process")
                 return
