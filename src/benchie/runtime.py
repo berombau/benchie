@@ -4,6 +4,8 @@ from pathlib import Path
 
 from loguru import logger
 
+from benchie.utils import create_command
+
 
 def _conclude_cmd(module_path):
     """
@@ -24,7 +26,7 @@ def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path,
     json_path = destination_output + "/" + json_path.name
     md_path = destination_output + "/" + md_path.name
     executable = "'uv run --frozen --no-sync python'"
-    subcommand = "import {module}; {module}." + testfile.read_text()
+    subcommand = create_command(module_path, testfile)
     cmd_conclude = _conclude_cmd(src)
     logger.debug(f"Executable: {executable}")
     logger.debug(f"Subcommand: {subcommand}")
@@ -41,7 +43,7 @@ def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path,
 
 
 def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min_runs, names):
-    subcommand = "import {module}; {module}." + testfile.read_text()
+    subcommand = create_command(module_path, testfile)
     # subcommand = f"docker run -t --rm --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/solutions/project/{{module}},destination=/submission,readonly --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/data/project/{testfile.read_text().strip()},destination=/home/runner/data/Levine_13dim.fcs,readonly local_combio_project"
     executable = sys.executable
     # executable = "docker"

@@ -11,6 +11,7 @@ from loguru import logger
 from benchie.memray import run_memray
 from benchie.reporting import key_by_memory
 from benchie.runtime import run_hyperfine_all
+from benchie.utils import create_command
 
 
 class BenchmarkOption(Enum):
@@ -20,19 +21,6 @@ class BenchmarkOption(Enum):
     SCALENE = "scalene"
     MEMRAY_TRACKER = "memray_tracker"
     MEMRAY_IMPORTS = "memray_imports"
-
-
-def create_command(path, testfile, interpreter="python"):
-    """Create a command to execute a test file using a given path and interpreter."""
-    if path.is_dir():
-        assert (path / "src").exists(), f"Source folder {path / 'src'} does not exist"
-        module = list((path / "src").iterdir())[0].name
-    else:
-        module = path.name.removesuffix(".py")
-    fn_command = testfile.read_text()
-    command = f"""import {module}; {module}.{fn_command}
-    """
-    return command
 
 
 def prep_workdir(data_folder, chdir=True):
