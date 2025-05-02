@@ -5,7 +5,6 @@ def create_command(path, testfile, interpreter="python"):
     if testfile.endswith(".sh"):
         # python3 python_file arg1 arg2 ...
         sh_command = testcode.split([" "])
-        sh_command[1] = path
         command = f"""import subprocess; subprocess.run({sh_command})
         """
         return command
