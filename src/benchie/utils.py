@@ -1,4 +1,3 @@
-
 def create_command(path, testfile, interpreter="python"):
     """Create a command to execute a test file using a given path and interpreter."""
     testcode = testfile.read_text()
