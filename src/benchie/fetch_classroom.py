@@ -26,6 +26,7 @@ def main(solutions, task_id, force, subset):
     output = output[4:]
     output = [x.split() for x in output][:subset]
     # the repo url is the last element, first is the id
+    logger.info(output)
     output = {x[0]: x[-1] for x in output}
     logger.info(output)
     for k, v in output.items():
