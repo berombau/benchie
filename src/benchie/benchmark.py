@@ -148,6 +148,11 @@ def benchmark(
                 # round to 10 ms, take .1% of runtime
                 memory_interval_ms = _parse_dynamic_sampling_timer(int((end - start) / 1_000_000))
 
+                # Check if output file is generated
+                if not any(solution.rglob("sunburst*.html")):
+                    logger.error(f"Output sunburst file not found")
+                    continue
+                
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
                 #     logger.error(f"Timeout while testing '{solution.stem}'")
