@@ -27,7 +27,10 @@ def prep_workdir(data_folder, chdir=True):
     tmp = Path(tempfile.mkdtemp())
     # copy all files from data folder to tmp, except .py files
     for path in data_folder.glob("*"):
-        if path.suffix != ".py":
+        if path.is_dir():
+            dst = tmp / path.name
+            shutil.copytree(path, dst)
+        elif path.suffix != ".py":
             shutil.copy(path, tmp)
     if chdir:
         os.chdir(tmp)

@@ -6,6 +6,7 @@ from loguru import logger
 
 from benchie.utils import create_command
 
+import re
 
 def _conclude_cmd(module_path):
     """
@@ -43,7 +44,7 @@ def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path,
 
 
 def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min_runs, names):
-    subcommand = create_command(module_path, testfile)
+    subcommand = create_command(module_path, testfile, generic=True)
     # subcommand = f"docker run -t --rm --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/solutions/project/{{module}},destination=/submission,readonly --mount type=bind,source=/Users/benjaminr/Documents/GitHub/benchmarks-2024/data/project/{testfile.read_text().strip()},destination=/home/runner/data/Levine_13dim.fcs,readonly local_combio_project"
     executable = sys.executable
     # executable = "docker"
@@ -51,11 +52,23 @@ def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min
     logger.debug(f"Executable: {executable}")
     logger.debug(f"Command: {subcommand}")
     logger.debug(f"Conclude command: {cmd_conclude}")
+    commands = [subcommand for _ in names]
+
+    # add python path for shell scripts
+    # Matches: subprocess.run([...]) possibly with optional args
+    pattern = r'(subprocess\.run\s*\(\s*\[.*?\])(\s*\))'
+    for i, name in enumerate(names):
+        pythonpath = f"{module_path}/{name}/src"
+        # Inject env argument
+        replacement = r'import os; \1, env={**os.environ, "PYTHONPATH": "' + pythonpath + r'"}\2'
+        commands[i] = re.sub(pattern, replacement, commands[i])
+
     command = f"""
-        PYTHONPATH={module_path!s} hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
+        PYTHONPATH={module_path!s}/src hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
             -w {warmup} -m {min_runs} --shell {executable} --show-output --conclude \'{cmd_conclude}\' \
             {" ".join(["-n " + x for x in names])} \
-            -L module {",".join(names)} \'{subcommand}\'
+            -L module {",".join(names)} \
+            {" ".join(f"'{cmd}'" for cmd in commands)}
     """
     logger.info(f"Command {command}")
     return subprocess.run(command, shell=True, check=True)
