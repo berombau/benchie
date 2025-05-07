@@ -149,13 +149,10 @@ def benchmark(
                 memory_interval_ms = _parse_dynamic_sampling_timer(int((end - start) / 1_000_000))
 
                 # Check if output file is generated
-                print(testfile.parent)
-                if not any(solution.rglob(f"sunburst_{testfile.parent}*.html")):
+                print(f"sunburst_{testfile.name}*.html")
+                if not any(solution.rglob(f"sunburst_{testfile.name}*.html")):
                     logger.error(f"Output sunburst file not found")
                     continue
-                else:
-                    for path in solution.rglob("sunburst*.html"):
-                        logger.info(path)
 
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
