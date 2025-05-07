@@ -152,6 +152,8 @@ def benchmark(
                 if not any(solution.rglob("sunburst*.html")):
                     logger.error(f"Output sunburst file not found")
                     continue
+                else:
+                    print(solution.rglob("sunburst*.html"))
                 
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
