@@ -5,7 +5,7 @@ def create_command(path, testfile, generic=False):
     testcode = testfile.read_text()
     if testfile.name.endswith(".sh"):
         # python3 python_file arg1 arg2 ...
-        sh_command = '["' + sys.executable + ', ' + ", ".join(f'"{item}"' for item in testcode.strip().split(" ")[1:]) + "]"
+        sh_command = '["' + sys.executable + '", ' + ", ".join(f'"{item}"' for item in testcode.strip().split(" ")[1:]) + "]"
         command = f"""import subprocess; subprocess.run({sh_command})"""
         return command
 
