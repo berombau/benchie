@@ -149,9 +149,11 @@ def benchmark(
                 memory_interval_ms = _parse_dynamic_sampling_timer(int((end - start) / 1_000_000))
 
                 # Check if output file is generated
-                output_dir = solution.parent / "Output_Classicol"
+                output_dir = Path("./Output_Classicol/")
                 sunburst_files = list(output_dir.rglob(f"sunburst_{testfile.stem}*.html"))
-                print(list(solution.parent.rglob(f"*")))
+                print(list(Path("./").rglob("*/sunburst*")))
+                print(list(Path("./").rglob("*")))
+                print(list(output_dir.rglob("*")))
                 if sunburst_files:
                     for f in sunburst_files:
                         try:
