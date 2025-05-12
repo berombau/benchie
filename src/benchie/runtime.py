@@ -1,3 +1,4 @@
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -6,7 +7,6 @@ from loguru import logger
 
 from benchie.utils import create_command
 
-import re
 
 def _conclude_cmd(module_path):
     """
@@ -56,7 +56,7 @@ def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min
 
     # add python path for shell scripts
     # Matches: subprocess.run([...]) possibly with optional args
-    pattern = r'(subprocess\.run\s*\(\s*\[.*?\])(\s*\))'
+    pattern = r"(subprocess\.run\s*\(\s*\[.*?\])(\s*\))"
     for i, name in enumerate(names):
         pythonpath = f"{module_path}/{name}/src"
         # Inject env argument
