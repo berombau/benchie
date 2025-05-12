@@ -150,12 +150,9 @@ def benchmark(
 
                 # Check if output file is generated
                 output_dir = Path("./Output_Classicol/")
-                sunburst_files = list(output_dir.rglob(f"sunburst_{testfile.stem}*.html"))
-                print(list(Path("./").rglob("*/sunburst*")))
-                print(list(Path("./").rglob("*")))
-                print(list(output_dir.rglob("*")))
-                if sunburst_files:
-                    for f in sunburst_files:
+                zooms_file = list(output_dir.rglob(f"ZooMS_*.csv"))
+                if zooms_file:
+                    for f in zooms_file:
                         try:
                             f.unlink()
                             logger.info(f"Deleted: {f}")
