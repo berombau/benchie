@@ -149,7 +149,16 @@ def benchmark(
                 memory_interval_ms = _parse_dynamic_sampling_timer(int((end - start) / 1_000_000))
 
                 # Check if output file is generated
-                if not any(solution.rglob(f"sunburst_{testfile.stem}*.html")):
+                output_dir = solution.parent / "Output_Classicol"
+                sunburst_files = list(output_dir.rglob(f"sunburst_{testfile.stem}*.html"))
+                if sunburst_files:
+                    for f in sunburst_files:
+                        try:
+                            f.unlink()
+                            logger.info(f"Deleted: {f}")
+                        except Exception as e:
+                            logger.error(f"Failed to delete {f}: {e}")
+                else:
                     logger.error(f"Output sunburst file not found")
                     continue
 
