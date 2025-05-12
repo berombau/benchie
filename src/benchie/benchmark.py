@@ -151,7 +151,7 @@ def benchmark(
                 # Check if output file is generated
                 output_dir = solution.parent / "Output_Classicol"
                 sunburst_files = list(output_dir.rglob(f"sunburst_{testfile.stem}*.html"))
-                print(output_dir.rglob(f"*"))
+                print(list(output_dir.rglob(f"*")))
                 if sunburst_files:
                     for f in sunburst_files:
                         try:
