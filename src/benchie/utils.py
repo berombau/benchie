@@ -1,4 +1,3 @@
-
 def create_command(path, testfile, generic=False):
     """Create a command to execute a test file using a given path and interpreter."""
     testcode = testfile.read_text()
@@ -9,8 +8,12 @@ def create_command(path, testfile, generic=False):
         return command
 
     if generic:
-        return "import {module}; {module}.{" + testcode + "} \
+        return (
+            "import {module}; {module}.{"
+            + testcode
+            + "} \
         "
+        )
 
     if path.is_dir():
         assert (path / "src").exists(), f"Source folder {path / 'src'} does not exist"
