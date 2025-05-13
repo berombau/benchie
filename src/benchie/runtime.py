@@ -66,7 +66,7 @@ def run_hyperfine_process(testfile, module_path, json_path, md_path, warmup, min
     command = f"""
         PYTHONPATH={module_path!s}/src hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
             -w {warmup} -m {min_runs} --shell {executable} --show-output --conclude \'{cmd_conclude}\' \
-            -L module {",".join(names)} \
+            {" ".join(["-n " + x for x in names])} \
             {" ".join(f"'{cmd}'" for cmd in commands)}
     """
     logger.info(f"Command {command}")
