@@ -159,7 +159,7 @@ def benchmark(
                         except Exception as e:
                             logger.error(f"Failed to delete {f}: {e}")
                 else:
-                    logger.error(f"Output sunburst file not found")
+                    logger.error(f"Output csv file not found")
                     continue
 
                 # code = with_timeout(timeout, action='timeout')(exec)(command)

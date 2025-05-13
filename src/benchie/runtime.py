@@ -35,7 +35,6 @@ def run_hyperfine_process_docker(docker_image, testfile, module_path, json_path,
     command = f"""
         hyperfine --ignore-failure --export-json {json_path!s} --export-markdown {md_path!s} \
             -w {warmup} -m {min_runs} --shell {executable} --show-output --conclude \'{cmd_conclude}\' \
-            {" ".join(["-n " + x for x in names])} \
             -L module {",".join(names)} \'{subcommand}\'
     """.strip()
     logger.info(f"Command: {command}")
