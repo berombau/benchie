@@ -150,7 +150,7 @@ def benchmark(
 
                 # Check if output file is generated
                 output_dir = Path("./Output_Classicol/")
-                zooms_file = list(output_dir.rglob(f"ZooMS_*.csv"))
+                zooms_file = list(output_dir.rglob(f"Summary_taxonomic_classification_*.csv"))
                 if zooms_file:
                     for f in zooms_file:
                         try:
