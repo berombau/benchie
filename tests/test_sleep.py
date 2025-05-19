@@ -21,6 +21,7 @@ def test_sleep_hyperfine(sleep_solution, sleep_data, tmp_path):
     )
     assert len(output) == 2
 
+
 def test_sleep_hyperfine_no_pycache(sleep_solution, sleep_data, tmp_path):
     testfile = sleep_data / "data_01.py"
     solutions = list(sleep_solution.glob("*.py"))
