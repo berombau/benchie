@@ -148,20 +148,6 @@ def benchmark(
                 # round to 10 ms, take .1% of runtime
                 memory_interval_ms = _parse_dynamic_sampling_timer(int((end - start) / 1_000_000))
 
-                # Check if output file is generated
-                output_dir = Path("./Output_Classicol/")
-                zooms_file = list(output_dir.rglob(f"Summary_taxonomic_classification_*.csv"))
-                if zooms_file:
-                    for f in zooms_file:
-                        try:
-                            f.unlink()
-                            logger.info(f"Deleted: {f}")
-                        except Exception as e:
-                            logger.error(f"Failed to delete {f}: {e}")
-                else:
-                    logger.error(f"Output csv file not found")
-                    continue
-
                 # code = with_timeout(timeout, action='timeout')(exec)(command)
                 # if code == 'timeout':
                 #     logger.error(f"Timeout while testing '{solution.stem}'")
@@ -176,6 +162,21 @@ def benchmark(
             except subprocess.CalledProcessError as e:
                 logger.error(f"Error while testing '{solution.stem}'; {e}")
                 continue
+
+            # Check if output file is generated
+            output_dir = Path("./Output_Classicol/")
+            zooms_file = list(output_dir.rglob(f"Summary_taxonomic_classification_*.csv"))
+            if zooms_file:
+                for f in zooms_file:
+                    try:
+                        f.unlink()
+                        logger.info(f"Deleted: {f}")
+                    except Exception as e:
+                        logger.error(f"Failed to delete {f}: {e}")
+            else:
+                logger.error(f"Output csv file not found")
+                continue
+
             all_correct_solutions.append({"path": solution, "memory_interval_ms": memory_interval_ms})
         logger.info(f"Correct solutions: {len(all_correct_solutions)}")
     else:
