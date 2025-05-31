@@ -125,9 +125,6 @@ def benchmark(
                     path.unlink()
     output.mkdir(exist_ok=True)
 
-    testfile = testfile.resolve()
-    prep_workdir(testfile.parent)
-
     if not disable_pretest:
         # test solution correctness and report errors
         logger.info("Testing correctness.")
@@ -136,13 +133,8 @@ def benchmark(
         all_correct_solutions = []
         for solution in solutions:
             try:
-
-                output_dir = Path("./Output_Classicol/")
-                zooms_file = list(output_dir.rglob(f"Summary_taxonomic_classification_*.csv"))
-                if zooms_file:
-                    for f in zooms_file:
-                        f.unlink()
-                        logger.info(f"Deleted: {f}")
+                testfile = testfile.resolve()
+                prep_workdir(testfile.parent)
 
                 # start time clock, set memory_interval_ms to 0.001 of runtime for each solution
                 start = time.time_ns()
