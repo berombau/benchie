@@ -80,7 +80,7 @@ def run_hyperfine_all(
     json_path=None,
     md_path=None,
     warmup=1,
-    min_runs=1,
+    min_runs=3,
     subset=None,
     docker_image=None,
 ):
