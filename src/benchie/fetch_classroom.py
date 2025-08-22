@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 
 from loguru import logger
+import shutil
+import os
 
 
 def main(solutions, task_id, force, subset):
@@ -41,6 +43,15 @@ def main(solutions, task_id, force, subset):
                 ],
                 cwd=solutions / folder_name,
             )
+            # Clean up: remove everything except 'src/'
+            repo_path = solutions / folder_name
+            for item in os.listdir(repo_path):
+                item_path = repo_path / item
+                if item != "src":
+                    if item_path.is_dir():
+                        shutil.rmtree(item_path)
+                    else:
+                        item_path.unlink()
         else:
             # remove dir if it exists
             if path.exists():
