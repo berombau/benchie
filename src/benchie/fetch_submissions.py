@@ -39,7 +39,7 @@ def query(path, base="https://dodona.be/"):
 
 def fetch_correct(course, exercise, page):
     return query(
-        f"courses/{course}/activities/{exercise}/submissions/?most_recent_per_user=true&status=correct&page={page+1}"
+        f"courses/{course}/activities/{exercise}/submissions/?most_recent_per_user=true&status=correct&page={page + 1}"
     )
 
 
